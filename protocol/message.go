@@ -3,6 +3,7 @@ package protocol
 import (
 	"bytes"
 	"errors"
+	"io"
 	"reflect"
 
 	"github.com/lunixbochs/struc"
@@ -33,7 +34,7 @@ type Message struct {
 	Payload []byte
 }
 
-func PackMessage(payload interface{}, buffer *bytes.Buffer) error {
+func PackMessage(buffer io.Writer, payload interface{}) error {
 	var buf bytes.Buffer
 	err := struc.Pack(&buf, payload)
 	if err != nil {
@@ -48,7 +49,7 @@ func PackMessage(payload interface{}, buffer *bytes.Buffer) error {
 	return struc.Pack(buffer, msg)
 }
 
-func UnpackMessage(buffer *bytes.Buffer) (interface{}, error) {
+func UnpackMessage(buffer io.Reader) (interface{}, error) {
 	var msg Message
 	err := struc.Unpack(buffer, &msg)
 	if err != nil {
