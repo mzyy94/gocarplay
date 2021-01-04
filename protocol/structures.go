@@ -76,3 +76,7 @@ type Touch struct {
 type MultiTouch struct {
 	// TODO: Implement
 }
+
+type Unknown struct {
+	Data []byte
+}

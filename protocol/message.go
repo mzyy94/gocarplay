@@ -73,7 +73,9 @@ func UnpackPayload(msgType uint32, buffer io.Reader) (interface{}, error) {
 			return payload, nil
 		}
 	}
-	return nil, errors.New("No message found")
+	buf := new(bytes.Buffer)
+	io.Copy(buf, buffer)
+	return &Unknown{Data: buf.Bytes()}, nil
 }
 
 func UnpackMessage(buffer io.Reader) (interface{}, error) {
