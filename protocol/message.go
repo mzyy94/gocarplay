@@ -9,6 +9,8 @@ import (
 	"github.com/lunixbochs/struc"
 )
 
+const magicNumber uint32 = 0x55aa55aa
+
 var messageTypes = map[reflect.Type]uint32{
 	reflect.TypeOf(&SendFile{}):         0x99,
 	reflect.TypeOf(&Open{}):             0x01,
@@ -45,13 +47,27 @@ func PackMessage(buffer io.Writer, payload interface{}) error {
 		return errors.New("No message found")
 	}
 	msgTypeN := (msgType ^ 0xffffffff) & 0xffffffff
-	msg := &Message{Magic: 0x55aa55aa, Type: msgType, TypeN: msgTypeN, Payload: buf.Bytes()}
+	msg := &Message{Magic: magicNumber, Type: msgType, TypeN: msgTypeN, Payload: buf.Bytes()}
 	return struc.Pack(buffer, msg)
+}
+
+func UnpackHeader(buffer io.Reader, msg *Message) error {
+	err := struc.Unpack(buffer, msg)
+	if err != nil {
+		return err
+	}
+	if msg.Magic != magicNumber {
+		return errors.New("Invalid magic number")
+	}
+	if (msg.Type^0xffffffff)&0xffffffff != msg.TypeN {
+		return errors.New("Invalid type")
+	}
+	return nil
 }
 
 func UnpackMessage(buffer io.Reader) (interface{}, error) {
 	var msg Message
-	err := struc.Unpack(buffer, &msg)
+	err := UnpackHeader(buffer, &msg)
 	if err != nil {
 		return nil, err
 	}
