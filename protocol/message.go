@@ -65,20 +65,22 @@ func UnpackHeader(buffer io.Reader, msg *Message) error {
 	return nil
 }
 
+func UnpackPayload(msgType uint32, buffer io.Reader) (interface{}, error) {
+	for key, value := range messageTypes {
+		if value == msgType {
+			payload := reflect.New(key.Elem()).Interface()
+			struc.Unpack(buffer, payload)
+			return payload, nil
+		}
+	}
+	return nil, errors.New("No message found")
+}
+
 func UnpackMessage(buffer io.Reader) (interface{}, error) {
 	var msg Message
 	err := UnpackHeader(buffer, &msg)
 	if err != nil {
 		return nil, err
 	}
-
-	for key, value := range messageTypes {
-		if value == msg.Type {
-			payload := reflect.New(key.Elem()).Interface()
-			struc.Unpack(bytes.NewBuffer(msg.Payload), payload)
-			return payload, nil
-		}
-	}
-
-	return nil, errors.New("No message found")
+	return UnpackPayload(msg.Type, bytes.NewBuffer(msg.Payload))
 }
