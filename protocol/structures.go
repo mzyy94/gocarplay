@@ -95,5 +95,5 @@ type MultiTouch struct {
 
 type Unknown struct {
 	Header `struc:"skip"`
-	Data   []byte
+	Data   []byte `struc:"skip"`
 }

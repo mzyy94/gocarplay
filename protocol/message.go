@@ -69,8 +69,8 @@ func Marshal(payload interface{}) ([]byte, error) {
 	return buffer.Bytes(), err
 }
 
-func UnpackHeader(buffer io.Reader, hdr *Header) error {
-	err := struc.Unpack(buffer, hdr)
+func unpackHeader(buffer []byte, hdr *Header) error {
+	err := struc.Unpack(bytes.NewBuffer(buffer), hdr)
 	if err != nil {
 		return err
 	}
@@ -83,33 +83,37 @@ func UnpackHeader(buffer io.Reader, hdr *Header) error {
 	return nil
 }
 
-func UnpackPayload(hdr Header, buffer io.Reader) (interface{}, error) {
+func GetPayloadByHeader(hdr Header) interface{} {
 	for key, value := range messageTypes {
 		if value == hdr.Type {
-			payload := reflect.New(key.Elem()).Interface()
-			struc.Unpack(buffer, payload)
-
-			switch payload := payload.(type) {
-			case *AudioData:
-				buf := new(bytes.Buffer)
-				io.Copy(buf, buffer)
-				bin := buf.Bytes()
-
-				switch len(bin) {
-				case 1:
-					payload.Command = AudioCommand(bin[0])
-				case 4:
-					binary.Read(bytes.NewBuffer(bin), binary.LittleEndian, &payload.VolumeDuration)
-				default:
-					payload.Data = bin
-				}
-			}
-			reflect.ValueOf(payload).Elem().FieldByName("Header").Set(reflect.ValueOf(hdr))
-
-			return payload, nil
+			return reflect.New(key.Elem()).Interface()
 		}
 	}
-	buf := new(bytes.Buffer)
-	io.Copy(buf, buffer)
-	return &Unknown{Header: hdr, Data: buf.Bytes()}, nil
+	return &Unknown{}
+}
+
+func Unmarshal(data []byte, payload interface{}) error {
+	err := struc.Unpack(bytes.NewBuffer(data), payload)
+	if header, ok := payload.(*Header); ok {
+		return unpackHeader(data, header)
+	}
+	if err != nil {
+		return err
+	}
+
+	switch payload := payload.(type) {
+	case *AudioData:
+		switch len(data) - 12 {
+		case 1:
+			payload.Command = AudioCommand(data[12])
+		case 4:
+			binary.Read(bytes.NewBuffer(data[12:]), binary.LittleEndian, &payload.VolumeDuration)
+		default:
+			payload.Data = data[12:]
+		}
+	case *Unknown:
+		payload.Data = data
+	}
+
+	return nil
 }
