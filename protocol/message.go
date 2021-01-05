@@ -79,9 +79,11 @@ func GetPayloadByHeader(hdr Header) interface{} {
 }
 
 func Unmarshal(data []byte, payload interface{}) error {
-	err := struc.Unpack(bytes.NewBuffer(data), payload)
-	if err != nil {
-		return err
+	if len(data) > 0 {
+		err := struc.Unpack(bytes.NewBuffer(data), payload)
+		if err != nil {
+			return err
+		}
 	}
 
 	switch payload := payload.(type) {
