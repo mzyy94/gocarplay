@@ -43,7 +43,7 @@ type BluetoothPIN struct {
 
 type Plugged struct {
 	PhoneType int  `struc:"int32,little"`
-	Wifi      bool `struc:"int32,little"`
+	Wifi      bool `struc:"skip"`
 	// FIXME: Send WifiParam only when no wifi is ok
 }
 
