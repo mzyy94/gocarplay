@@ -38,9 +38,11 @@ type Message struct {
 
 func PackMessage(buffer io.Writer, payload interface{}) error {
 	var buf bytes.Buffer
-	err := struc.Pack(&buf, payload)
-	if err != nil {
-		return err
+	if reflect.ValueOf(payload).Elem().NumField() > 0 {
+		err := struc.Pack(&buf, payload)
+		if err != nil {
+			return err
+		}
 	}
 	msgType, found := messageTypes[reflect.TypeOf(payload)]
 	if !found {
