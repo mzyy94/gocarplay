@@ -58,12 +58,12 @@ type VideoData struct {
 }
 
 type AudioData struct {
-	DecodeType int32     `struc:"int32,little"`
-	Volume     float32   `struc:"float32,little"`
-	AudioType  AudioType `struc:"int32,little"`
-	// Command AudioCommand  `struc:"int32,little"`
-	// VolumeDuration int32  `struc:"int32,little"`
-	Data []byte `struc:"skip"`
+	DecodeType     int32        `struc:"int32,little"`
+	Volume         float32      `struc:"float32,little"`
+	AudioType      AudioType    `struc:"int32,little"`
+	Command        AudioCommand `struc:"skip"`
+	VolumeDuration int32        `struc:"skip"`
+	Data           []byte       `struc:"skip"`
 }
 
 type Touch struct {

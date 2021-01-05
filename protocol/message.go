@@ -2,6 +2,7 @@ package protocol
 
 import (
 	"bytes"
+	"encoding/binary"
 	"errors"
 	"io"
 	"reflect"
@@ -72,6 +73,23 @@ func UnpackPayload(msgType uint32, buffer io.Reader) (interface{}, error) {
 		if value == msgType {
 			payload := reflect.New(key.Elem()).Interface()
 			struc.Unpack(buffer, payload)
+
+			switch payload := payload.(type) {
+			case *AudioData:
+				buf := new(bytes.Buffer)
+				io.Copy(buf, buffer)
+				bin := buf.Bytes()
+
+				switch len(bin) {
+				case 1:
+					payload.Command = AudioCommand(bin[0])
+				case 4:
+					binary.Read(bytes.NewBuffer(bin), binary.LittleEndian, &payload.VolumeDuration)
+				default:
+					payload.Data = bin
+				}
+			}
+
 			return payload, nil
 		}
 	}

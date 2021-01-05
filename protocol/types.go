@@ -23,7 +23,7 @@ const (
 	SupportWifiNeedKo = CarPlayType(1012)
 )
 
-type AudioCommand uint32
+type AudioCommand uint8
 
 const (
 	AudioOutputStart    = AudioCommand(0x01)
