@@ -2,6 +2,7 @@ package link
 
 import (
 	"errors"
+	"time"
 
 	"github.com/google/gousb"
 )
@@ -17,15 +18,28 @@ func Connect() (*gousb.InEndpoint, *gousb.OutEndpoint, func(), error) {
 	ctx := gousb.NewContext()
 	cleanTask = append(cleanTask, func() { ctx.Close() })
 
-	// TODO: Wait connection
-	dev, err := ctx.OpenDeviceWithVIDPID(0x1314, 0x1520)
-	if err != nil {
-		return nil, nil, nil, err
+	var (
+		dev       *gousb.Device
+		err       error
+		waitCount = 5
+	)
+
+	for {
+		dev, err = ctx.OpenDeviceWithVIDPID(0x1314, 0x1520)
+		if err != nil {
+			return nil, nil, nil, err
+		}
+		if dev == nil {
+			waitCount--
+			if waitCount < 0 {
+				return nil, nil, nil, errors.New("Could not find a device")
+			}
+			time.Sleep(3 * time.Second)
+			continue
+		}
+		cleanTask = append(cleanTask, func() { dev.Close() })
+		break
 	}
-	if dev == nil {
-		return nil, nil, nil, errors.New("Could not find a device")
-	}
-	cleanTask = append(cleanTask, func() { dev.Close() })
 
 	intf, done, err := dev.DefaultInterface()
 	if err != nil {
