@@ -37,21 +37,31 @@ type Message struct {
 	Payload []byte
 }
 
-func PackMessage(buffer io.Writer, payload interface{}) error {
-	var buf bytes.Buffer
+func PackPayload(buffer io.Writer, payload interface{}) error {
 	if reflect.ValueOf(payload).Elem().NumField() > 0 {
-		err := struc.Pack(&buf, payload)
-		if err != nil {
-			return err
-		}
+		return struc.Pack(buffer, payload)
 	}
+	// Nothing to do
+	return nil
+}
+
+func PackHeader(payload interface{}, buffer io.Writer, data []byte) error {
 	msgType, found := messageTypes[reflect.TypeOf(payload)]
 	if !found {
 		return errors.New("No message found")
 	}
 	msgTypeN := (msgType ^ 0xffffffff) & 0xffffffff
-	msg := &Message{Magic: magicNumber, Type: msgType, TypeN: msgTypeN, Payload: buf.Bytes()}
+	msg := &Message{Magic: magicNumber, Type: msgType, TypeN: msgTypeN, Payload: data}
 	return struc.Pack(buffer, msg)
+}
+
+func PackMessage(buffer io.Writer, payload interface{}) error {
+	var buf bytes.Buffer
+	err := PackPayload(&buf, payload)
+	if err != nil {
+		return err
+	}
+	return PackHeader(payload, buffer, buf.Bytes())
 }
 
 func UnpackHeader(buffer io.Reader, msg *Message) error {
