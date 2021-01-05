@@ -89,7 +89,7 @@ func GetPayloadByHeader(hdr Header) interface{} {
 			return reflect.New(key.Elem()).Interface()
 		}
 	}
-	return &Unknown{}
+	return &Unknown{Type: hdr.Type}
 }
 
 func Unmarshal(data []byte, payload interface{}) error {

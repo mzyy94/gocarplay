@@ -80,5 +80,6 @@ type MultiTouch struct {
 }
 
 type Unknown struct {
+	Type uint32 `struc:"skip"`
 	Data []byte `struc:"skip"`
 }
