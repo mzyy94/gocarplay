@@ -11,7 +11,7 @@ func ReceiveMessage(epIn *gousb.InEndpoint, ctx context.Context) (interface{}, e
 	buf := make([]byte, 16)
 	var hdr protocol.Header
 	num, err := epIn.ReadContext(ctx, buf)
-	if err != nil {
+	if err != nil || num != len(buf) {
 		return nil, err
 	}
 	err = protocol.Unmarshal(buf[:num], &hdr)
@@ -24,12 +24,10 @@ func ReceiveMessage(epIn *gousb.InEndpoint, ctx context.Context) (interface{}, e
 
 	if hdr.Length > 0 {
 		num, err = epIn.ReadContext(ctx, buf)
-		if err != nil {
+		if err != nil || num != len(buf) {
 			return nil, err
 		}
-	} else {
-		num = 0
 	}
-	err = protocol.Unmarshal(buf[:num], payload)
+	err = protocol.Unmarshal(buf, payload)
 	return payload, err
 }
