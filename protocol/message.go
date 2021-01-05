@@ -36,12 +36,6 @@ type Header struct {
 	TypeN  uint32 `struc:"uint32,little"`
 }
 
-// Message is header structure with payload
-type Message struct {
-	Header
-	Payload []byte `struc:"skip"`
-}
-
 func PackPayload(buffer io.Writer, payload interface{}) error {
 	if reflect.ValueOf(payload).Elem().NumField() > 0 {
 		return struc.Pack(buffer, payload)
@@ -56,7 +50,7 @@ func PackHeader(payload interface{}, buffer io.Writer, data []byte) error {
 		return errors.New("No message found")
 	}
 	msgTypeN := (msgType ^ 0xffffffff) & 0xffffffff
-	msg := &Message{Header{Magic: magicNumber, Length: uint32(len(data)), Type: msgType, TypeN: msgTypeN}, data}
+	msg := &Header{Magic: magicNumber, Length: uint32(len(data)), Type: msgType, TypeN: msgTypeN}
 	err := struc.Pack(buffer, msg)
 	if err != nil {
 		return err
