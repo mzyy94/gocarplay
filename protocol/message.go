@@ -69,20 +69,6 @@ func Marshal(payload interface{}) ([]byte, error) {
 	return buffer.Bytes(), err
 }
 
-func unpackHeader(buffer []byte, hdr *Header) error {
-	err := struc.Unpack(bytes.NewBuffer(buffer), hdr)
-	if err != nil {
-		return err
-	}
-	if hdr.Magic != magicNumber {
-		return errors.New("Invalid magic number")
-	}
-	if (hdr.Type^0xffffffff)&0xffffffff != hdr.TypeN {
-		return errors.New("Invalid type")
-	}
-	return nil
-}
-
 func GetPayloadByHeader(hdr Header) interface{} {
 	for key, value := range messageTypes {
 		if value == hdr.Type {
@@ -94,14 +80,18 @@ func GetPayloadByHeader(hdr Header) interface{} {
 
 func Unmarshal(data []byte, payload interface{}) error {
 	err := struc.Unpack(bytes.NewBuffer(data), payload)
-	if header, ok := payload.(*Header); ok {
-		return unpackHeader(data, header)
-	}
 	if err != nil {
 		return err
 	}
 
 	switch payload := payload.(type) {
+	case *Header:
+		if payload.Magic != magicNumber {
+			return errors.New("Invalid magic number")
+		}
+		if (payload.Type^0xffffffff)&0xffffffff != payload.TypeN {
+			return errors.New("Invalid type")
+		}
 	case *AudioData:
 		switch len(data) - 12 {
 		case 1:
