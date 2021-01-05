@@ -111,12 +111,3 @@ func UnpackPayload(msgType uint32, buffer io.Reader) (interface{}, error) {
 	io.Copy(buf, buffer)
 	return &Unknown{Data: buf.Bytes()}, nil
 }
-
-func UnpackMessage(buffer io.Reader) (interface{}, error) {
-	var hdr Header
-	err := UnpackHeader(buffer, &hdr)
-	if err != nil {
-		return nil, err
-	}
-	return UnpackPayload(hdr.Type, buffer)
-}
