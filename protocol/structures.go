@@ -52,7 +52,7 @@ type VideoData struct {
 	Width    int32  `struc:"int32,little"`
 	Height   int32  `struc:"int32,little"`
 	Flags    int32  `struc:"int32,little"`
-	Unknown1 int32  `struc:"int32,little"`
+	Length   int32  `struc:"int32,little,sizeof=Data"`
 	Unknown2 int32  `struc:"int32,little"`
 	Data     []byte `struc:"[]byte"`
 }
@@ -63,7 +63,7 @@ type AudioData struct {
 	AudioType  AudioType `struc:"int32,little"`
 	// Command AudioCommand  `struc:"int32,little"`
 	// VolumeDuration int32  `struc:"int32,little"`
-	Data []byte `struc:"[]byte"`
+	Data []byte `struc:"skip"`
 }
 
 type Touch struct {
