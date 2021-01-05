@@ -11,23 +11,23 @@ import (
 
 func ReceiveMessage(epIn *gousb.InEndpoint, ctx context.Context) (interface{}, error) {
 	buf := make([]byte, 16)
-	var msg protocol.Message
+	var hdr protocol.Header
 	num, err := epIn.ReadContext(ctx, buf)
 	if err != nil {
 		return nil, err
 	}
-	err = protocol.UnpackHeader(bytes.NewBuffer(buf[:num]), &msg)
+	err = protocol.UnpackHeader(bytes.NewBuffer(buf[:num]), &hdr)
 	if err != nil && err != io.EOF {
 		return nil, err
 	}
 
-	if msg.Length > 0 {
-		buf := make([]byte, msg.Length)
+	if hdr.Length > 0 {
+		buf := make([]byte, hdr.Length)
 		num, err = epIn.ReadContext(ctx, buf)
 		if err != nil {
 			return nil, err
 		}
-		return protocol.UnpackPayload(msg.Type, bytes.NewBuffer(buf[:num]))
+		return protocol.UnpackPayload(hdr.Type, bytes.NewBuffer(buf[:num]))
 	}
-	return protocol.UnpackPayload(msg.Type, &bytes.Buffer{})
+	return protocol.UnpackPayload(hdr.Type, &bytes.Buffer{})
 }

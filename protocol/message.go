@@ -57,7 +57,12 @@ func PackHeader(payload interface{}, buffer io.Writer, data []byte) error {
 	}
 	msgTypeN := (msgType ^ 0xffffffff) & 0xffffffff
 	msg := &Message{Header{Magic: magicNumber, Length: uint32(len(data)), Type: msgType, TypeN: msgTypeN}, data}
-	return struc.Pack(buffer, msg)
+	err := struc.Pack(buffer, msg)
+	if err != nil {
+		return err
+	}
+	_, err = buffer.Write(data)
+	return err
 }
 
 func PackMessage(buffer io.Writer, payload interface{}) error {
@@ -69,15 +74,15 @@ func PackMessage(buffer io.Writer, payload interface{}) error {
 	return PackHeader(payload, buffer, buf.Bytes())
 }
 
-func UnpackHeader(buffer io.Reader, msg *Message) error {
-	err := struc.Unpack(buffer, msg)
+func UnpackHeader(buffer io.Reader, hdr *Header) error {
+	err := struc.Unpack(buffer, hdr)
 	if err != nil {
 		return err
 	}
-	if msg.Magic != magicNumber {
+	if hdr.Magic != magicNumber {
 		return errors.New("Invalid magic number")
 	}
-	if (msg.Type^0xffffffff)&0xffffffff != msg.TypeN {
+	if (hdr.Type^0xffffffff)&0xffffffff != hdr.TypeN {
 		return errors.New("Invalid type")
 	}
 	return nil
@@ -114,10 +119,10 @@ func UnpackPayload(msgType uint32, buffer io.Reader) (interface{}, error) {
 }
 
 func UnpackMessage(buffer io.Reader) (interface{}, error) {
-	var msg Message
-	err := UnpackHeader(buffer, &msg)
+	var hdr Header
+	err := UnpackHeader(buffer, &hdr)
 	if err != nil {
 		return nil, err
 	}
-	return UnpackPayload(msg.Type, bytes.NewBuffer(msg.Payload))
+	return UnpackPayload(hdr.Type, buffer)
 }
