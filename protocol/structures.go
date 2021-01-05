@@ -68,8 +68,8 @@ type AudioData struct {
 
 type Touch struct {
 	Action TouchAction `struc:"int32,little"`
-	X      int32       `struc:"int32,little"`
-	Y      int32       `struc:"int32,little"`
+	X      uint32      `struc:"uint32,little"`
+	Y      uint32      `struc:"uint32,little"`
 	Flags  uint32      `struc:"int32,little"`
 }
 
