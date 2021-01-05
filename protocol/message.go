@@ -36,7 +36,7 @@ type Header struct {
 	TypeN  uint32 `struc:"uint32,little"`
 }
 
-func PackPayload(buffer io.Writer, payload interface{}) error {
+func packPayload(buffer io.Writer, payload interface{}) error {
 	if reflect.ValueOf(payload).Elem().NumField() > 0 {
 		return struc.Pack(buffer, payload)
 	}
@@ -44,7 +44,7 @@ func PackPayload(buffer io.Writer, payload interface{}) error {
 	return nil
 }
 
-func PackHeader(payload interface{}, buffer io.Writer, data []byte) error {
+func packHeader(payload interface{}, buffer io.Writer, data []byte) error {
 	msgType, found := messageTypes[reflect.TypeOf(payload)]
 	if !found {
 		return errors.New("No message found")
@@ -59,13 +59,14 @@ func PackHeader(payload interface{}, buffer io.Writer, data []byte) error {
 	return err
 }
 
-func PackMessage(buffer io.Writer, payload interface{}) error {
-	var buf bytes.Buffer
-	err := PackPayload(&buf, payload)
+func Marshal(payload interface{}) ([]byte, error) {
+	var buf, buffer bytes.Buffer
+	err := packPayload(&buf, payload)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return PackHeader(payload, buffer, buf.Bytes())
+	err = packHeader(payload, &buffer, buf.Bytes())
+	return buffer.Bytes(), err
 }
 
 func UnpackHeader(buffer io.Reader, hdr *Header) error {
