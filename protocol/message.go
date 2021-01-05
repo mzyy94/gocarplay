@@ -28,13 +28,18 @@ var messageTypes = map[reflect.Type]uint32{
 	reflect.TypeOf(&Touch{}):            0x05,
 }
 
-// Message is header structure of data protocol
+// Header is header structure of data protocol
+type Header struct {
+	Magic  uint32 `struc:"uint32,little"`
+	Length uint32 `struc:"uint32,little"`
+	Type   uint32 `struc:"uint32,little"`
+	TypeN  uint32 `struc:"uint32,little"`
+}
+
+// Message is header structure with payload
 type Message struct {
-	Magic   uint32 `struc:"uint32,little"`
-	Length  uint32 `struc:"uint32,little,sizeof=Payload"`
-	Type    uint32 `struc:"uint32,little"`
-	TypeN   uint32 `struc:"uint32,little"`
-	Payload []byte
+	Header
+	Payload []byte `struc:"skip"`
 }
 
 func PackPayload(buffer io.Writer, payload interface{}) error {
@@ -51,7 +56,7 @@ func PackHeader(payload interface{}, buffer io.Writer, data []byte) error {
 		return errors.New("No message found")
 	}
 	msgTypeN := (msgType ^ 0xffffffff) & 0xffffffff
-	msg := &Message{Magic: magicNumber, Type: msgType, TypeN: msgTypeN, Payload: data}
+	msg := &Message{Header{Magic: magicNumber, Length: uint32(len(data)), Type: msgType, TypeN: msgTypeN}, data}
 	return struc.Pack(buffer, msg)
 }
 
