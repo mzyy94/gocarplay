@@ -27,7 +27,7 @@ func ReceiveMessage(epIn *gousb.InEndpoint, ctx context.Context) (interface{}, e
 		if err != nil {
 			return nil, err
 		}
-		return protocol.UnpackPayload(hdr.Type, bytes.NewBuffer(buf[:num]))
+		return protocol.UnpackPayload(hdr, bytes.NewBuffer(buf[:num]))
 	}
-	return protocol.UnpackPayload(hdr.Type, &bytes.Buffer{})
+	return protocol.UnpackPayload(hdr, &bytes.Buffer{})
 }

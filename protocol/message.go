@@ -82,9 +82,9 @@ func UnpackHeader(buffer io.Reader, hdr *Header) error {
 	return nil
 }
 
-func UnpackPayload(msgType uint32, buffer io.Reader) (interface{}, error) {
+func UnpackPayload(hdr Header, buffer io.Reader) (interface{}, error) {
 	for key, value := range messageTypes {
-		if value == msgType {
+		if value == hdr.Type {
 			payload := reflect.New(key.Elem()).Interface()
 			struc.Unpack(buffer, payload)
 
@@ -103,11 +103,12 @@ func UnpackPayload(msgType uint32, buffer io.Reader) (interface{}, error) {
 					payload.Data = bin
 				}
 			}
+			reflect.ValueOf(payload).Elem().FieldByName("Header").Set(reflect.ValueOf(hdr))
 
 			return payload, nil
 		}
 	}
 	buf := new(bytes.Buffer)
 	io.Copy(buf, buffer)
-	return &Unknown{Data: buf.Bytes()}, nil
+	return &Unknown{Header: hdr, Data: buf.Bytes()}, nil
 }
