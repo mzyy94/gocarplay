@@ -43,12 +43,12 @@ type AudioFormat struct {
 	Frequency, Channel, Bitrate int
 }
 
-type AudioType uint32
+type DecodeType uint32
 
-var AudioDecodeTypes = map[AudioType]AudioFormat{
+var AudioDecodeTypes = map[DecodeType]AudioFormat{
 	0: {0, 0, 0},
 	1: {44100, 2, 16},
-	2: {44100, 2, 16},
+	2: {48000, 2, 16},
 	3: {8000, 1, 16},
 	4: {48000, 2, 16},
 	5: {16000, 1, 16},
