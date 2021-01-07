@@ -79,6 +79,18 @@ type MultiTouch struct {
 	// TODO: Implement
 }
 
+type BluetoothDeviceName struct {
+	Data string `struc:"skip"`
+}
+
+type WifiDeviceName struct {
+	Data string `struc:"skip"`
+}
+
+type BluetoothPairedList struct {
+	Data string `struc:"skip"`
+}
+
 type Unknown struct {
 	Type uint32 `struc:"skip"`
 	Data []byte `struc:"skip"`

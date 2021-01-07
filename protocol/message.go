@@ -13,19 +13,22 @@ import (
 const magicNumber uint32 = 0x55aa55aa
 
 var messageTypes = map[reflect.Type]uint32{
-	reflect.TypeOf(&SendFile{}):         0x99,
-	reflect.TypeOf(&Open{}):             0x01,
-	reflect.TypeOf(&Heartbeat{}):        0xaa,
-	reflect.TypeOf(&ManufacturerInfo{}): 0x14,
-	reflect.TypeOf(&CarPlay{}):          0x08,
-	reflect.TypeOf(&SoftwareVersion{}):  0xcc,
-	reflect.TypeOf(&BluetoothAddress{}): 0x0a,
-	reflect.TypeOf(&BluetoothPIN{}):     0x0c,
-	reflect.TypeOf(&Plugged{}):          0x02,
-	reflect.TypeOf(&Unplugged{}):        0x04,
-	reflect.TypeOf(&VideoData{}):        0x06,
-	reflect.TypeOf(&AudioData{}):        0x07,
-	reflect.TypeOf(&Touch{}):            0x05,
+	reflect.TypeOf(&SendFile{}):            0x99,
+	reflect.TypeOf(&Open{}):                0x01,
+	reflect.TypeOf(&Heartbeat{}):           0xaa,
+	reflect.TypeOf(&ManufacturerInfo{}):    0x14,
+	reflect.TypeOf(&CarPlay{}):             0x08,
+	reflect.TypeOf(&SoftwareVersion{}):     0xcc,
+	reflect.TypeOf(&BluetoothAddress{}):    0x0a,
+	reflect.TypeOf(&BluetoothPIN{}):        0x0c,
+	reflect.TypeOf(&Plugged{}):             0x02,
+	reflect.TypeOf(&Unplugged{}):           0x04,
+	reflect.TypeOf(&VideoData{}):           0x06,
+	reflect.TypeOf(&AudioData{}):           0x07,
+	reflect.TypeOf(&Touch{}):               0x05,
+	reflect.TypeOf(&BluetoothDeviceName{}): 0x0d,
+	reflect.TypeOf(&WifiDeviceName{}):      0x0e,
+	reflect.TypeOf(&BluetoothPairedList{}): 0x12,
 }
 
 // Header is header structure of data protocol
@@ -103,6 +106,12 @@ func Unmarshal(data []byte, payload interface{}) error {
 		default:
 			payload.Data = data[12:]
 		}
+	case *BluetoothDeviceName:
+		payload.Data = string(data)
+	case *WifiDeviceName:
+		payload.Data = string(data)
+	case *BluetoothPairedList:
+		payload.Data = string(data)
 	case *Unknown:
 		payload.Data = data
 	}
