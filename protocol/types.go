@@ -1,5 +1,7 @@
 package protocol
 
+import "strings"
+
 /// enum type def
 
 type CarPlayType uint32
@@ -63,3 +65,9 @@ const (
 	TouchMove = TouchAction(15)
 	TouchUp   = TouchAction(16)
 )
+
+type NullTermString string
+
+func (s NullTermString) GoString() string {
+	return "'" + strings.TrimRight(string(s), "\x00") + "'"
+}

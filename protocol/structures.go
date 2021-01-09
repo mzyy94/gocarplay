@@ -2,7 +2,7 @@ package protocol
 
 type SendFile struct {
 	FileNameSize int32 `struc:"int32,little,sizeof=FileName"`
-	FileName     string
+	FileName     NullTermString
 	ContentSize  int32 `struc:"int32,little,sizeof=Content"`
 	Content      []byte
 }
@@ -30,15 +30,15 @@ type CarPlay struct {
 }
 
 type SoftwareVersion struct {
-	Version string `struc:"[32]byte"`
+	Version NullTermString `struc:"[32]byte"`
 }
 
 type BluetoothAddress struct {
-	Address string `struc:"[17]byte"`
+	Address NullTermString `struc:"[17]byte"`
 }
 
 type BluetoothPIN struct {
-	Address string `struc:"[4]byte"`
+	Address NullTermString `struc:"[4]byte"`
 }
 
 type Plugged struct {
@@ -80,15 +80,15 @@ type MultiTouch struct {
 }
 
 type BluetoothDeviceName struct {
-	Data string `struc:"skip"`
+	Data NullTermString `struc:"skip"`
 }
 
 type WifiDeviceName struct {
-	Data string `struc:"skip"`
+	Data NullTermString `struc:"skip"`
 }
 
 type BluetoothPairedList struct {
-	Data string `struc:"skip"`
+	Data NullTermString `struc:"skip"`
 }
 
 type Unknown struct {

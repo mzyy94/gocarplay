@@ -107,11 +107,11 @@ func Unmarshal(data []byte, payload interface{}) error {
 			payload.Data = data[12:]
 		}
 	case *BluetoothDeviceName:
-		payload.Data = string(data)
+		payload.Data = NullTermString(data)
 	case *WifiDeviceName:
-		payload.Data = string(data)
+		payload.Data = NullTermString(data)
 	case *BluetoothPairedList:
-		payload.Data = string(data)
+		payload.Data = NullTermString(data)
 	case *Unknown:
 		payload.Data = data
 	}
