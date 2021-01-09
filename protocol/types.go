@@ -1,6 +1,9 @@
 package protocol
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 /// enum type def
 
@@ -25,6 +28,44 @@ const (
 	SupportWifiNeedKo = CarPlayType(1012)
 )
 
+func (c CarPlayType) GoString() string {
+	switch c {
+	case 0:
+		return "Invalid"
+	case 5:
+		return "BtnSiri"
+	case 7:
+		return "CarMicrophone"
+	case 100:
+		return "BtnLeft"
+	case 101:
+		return "BtnRight"
+	case 104:
+		return "BtnSelectDown"
+	case 105:
+		return "BtnSelectUp"
+	case 106:
+		return "BtnBack"
+	case 114:
+		return "BtnDown"
+	case 200:
+		return "BtnHome"
+	case 201:
+		return "BtnPlay"
+	case 202:
+		return "BtnPause"
+	case 204:
+		return "BtnNextTrack"
+	case 205:
+		return "BtnPrevTrack"
+	case 1000:
+		return "SupportWifi"
+	case 1012:
+		return "SupportWifiNeedKo"
+	}
+	return fmt.Sprintf("Unknown(%d)", c)
+}
+
 type AudioCommand uint8
 
 const (
@@ -40,6 +81,34 @@ const (
 	AudioMediaStart     = AudioCommand(0x0a)
 	AudioMediaStop      = AudioCommand(0x0b)
 )
+
+func (c AudioCommand) GoString() string {
+	switch c {
+	case 0x01:
+		return "AudioOutputStart"
+	case 0x02:
+		return "AudioOutputStop"
+	case 0x03:
+		return "AudioInputConfig"
+	case 0x04:
+		return "AudioPhonecallStart"
+	case 0x05:
+		return "AudioPhonecallStop"
+	case 0x06:
+		return "AudioNaviStart"
+	case 0x07:
+		return "AudioNaviStop"
+	case 0x08:
+		return "AudioSiriStart"
+	case 0x09:
+		return "AudioSiriStop"
+	case 0x0a:
+		return "AudioMediaStart"
+	case 0x0b:
+		return "AudioMediaStop"
+	}
+	return fmt.Sprintf("Unknown(%d)", c)
+}
 
 type AudioFormat struct {
 	Frequency, Channel, Bitrate uint16
