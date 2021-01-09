@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/binary"
+	"errors"
 	"time"
 
 	"github.com/google/gousb"
@@ -47,7 +48,10 @@ func Start(width, height, fps, dpi int32) {
 	}
 }
 
-func Communicate(onData func(interface{}), onError func(error)) {
+func Communicate(onData func(interface{}), onError func(error)) error {
+	if epIn == nil {
+		return errors.New("Not connected")
+	}
 	for {
 		received, err := ReceiveMessage(epIn, ctx)
 		if err != nil {
@@ -59,5 +63,8 @@ func Communicate(onData func(interface{}), onError func(error)) {
 }
 
 func SendData(data interface{}) error {
+	if epOut == nil {
+		return errors.New("Not connected")
+	}
 	return SendMessage(epOut, data)
 }
