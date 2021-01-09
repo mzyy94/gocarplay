@@ -42,7 +42,7 @@ const (
 )
 
 type AudioFormat struct {
-	Frequency, Channel, Bitrate int
+	Frequency, Channel, Bitrate uint16
 }
 
 type DecodeType uint32
